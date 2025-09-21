@@ -8,31 +8,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { ArrowRight, Users, BookOpen, Award, Building2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { ArrowRight, Users, BookOpen, Award, Lightbulb } from "lucide-react";
 
 const stats = [
-  { label: "Students Trained", value: "5,000+", icon: Users },
-  { label: "Courses Available", value: "25+", icon: BookOpen },
+  { label: "Students Mentored", value: "5,000+", icon: Users },
+  { label: "Courses Authored", value: "25+", icon: BookOpen },
   { label: "Years Experience", value: "10+", icon: Award },
-  { label: "Partner Companies", value: "15+", icon: Building2 },
+  { label: "Personal Projects", value: "15+", icon: Lightbulb },
 ];
 
 export default async function HomePage() {
-  const supabase = await createClient();
-
-  // Fetch featured courses
-  const { data: featuredCourses } = await supabase
-    .from("courses")
-    .select("*")
-    .eq("is_featured", true)
-    .limit(4);
-
-  // Fetch partner companies
-  const { data: partnerCompanies } = await supabase
-    .from("companies")
-    .select("*")
-    .limit(8);
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -42,23 +27,23 @@ export default async function HomePage() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-6xl font-bold text-balance">
-                  Empowering the Next Generation of{" "}
-                  <span className="text-primary">Tech Leaders</span>
+                  Sharing Knowledge & Inspiring{" "}
+                  <span className="text-primary">Tech Enthusiasts</span>
                 </h1>
                 <p className="text-xl text-muted-foreground text-pretty">
-                  Join thousands of students who have transformed their careers
-                  through our comprehensive courses in AI, Data Science, Machine
-                  Learning, and Programming.
+                  I help learners gain hands-on skills in AI, Data Science,
+                  Machine Learning, and programming through personalized
+                  guidance and real-world projects.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" asChild>
-                  <Link href="/courses">
-                    Explore Courses <ArrowRight className="ml-2 h-4 w-4" />
+                  <Link href="/about">
+                    Learn More About Me <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="/about">Learn More</Link>
+                  <Link href="/portfolio">My Work</Link>
                 </Button>
               </div>
             </div>
@@ -91,123 +76,65 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Short Information/Intro */}
+      {/* Short Information / Intro */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center space-y-6">
             <h2 className="text-3xl lg:text-4xl font-bold text-balance">
-              Bridging the Gap Between Education and Industry
+              Making Technology Accessible
             </h2>
             <p className="text-lg text-muted-foreground text-pretty">
-              With over a decade of experience in technology education, I've
-              dedicated my career to making complex concepts accessible and
-              practical. My courses combine theoretical foundations with
-              hands-on projects, ensuring students are ready for real-world
-              challenges.
+              Over a decade of experience has taught me how to make complex
+              concepts understandable and actionable. I design courses,
+              tutorials, and projects that allow learners to immediately apply
+              what they learn.
             </p>
             <p className="text-lg text-muted-foreground text-pretty">
-              From AI fundamentals to advanced machine learning, each program is
-              designed with industry partnerships and practical applications in
-              mind. Join a community of learners who are shaping the future of
-              technology.
+              From foundational programming to advanced AI techniques, my goal
+              is to guide others to build real-world skills and confidence.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Featured Courses */}
+      {/* Featured Courses / Projects */}
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold">Featured Courses</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold">
+              Highlighted Projects
+            </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Discover our most popular courses designed to accelerate your
-              career in technology
+              Selected personal projects and courses I’ve developed to help
+              learners advance their skills.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredCourses?.map((course) => (
-              <Card
-                key={course.id}
-                className="group hover:shadow-lg transition-shadow"
-              >
-                <div className="aspect-video overflow-hidden rounded-t-lg">
-                  <img
-                    src={course.image_url || "/placeholder.svg"}
-                    alt={course.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="secondary">
-                      {course.level || "All Levels"}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {course.duration || "Self-paced"}
-                    </span>
-                  </div>
-                  <CardTitle className="text-xl">{course.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="mb-4">
-                    {course.description}
-                  </CardDescription>
-                  <Button asChild className="w-full">
-                    <Link href={`/courses/${course.id}`}>Learn More</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            )) || []}
+            {/* Replace with actual project data or GitHub repo cards */}
+            <Card className="group hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-xl">AI Chatbot Project</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="mb-4">
+                  Developed an AI chatbot using GPT technology to answer student
+                  queries and provide interactive learning experiences.
+                </CardDescription>
+                <Button asChild className="w-full">
+                  <Link href="https://github.com/yourusername/aichatbot">
+                    View Project
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="text-center mt-12">
             <Button size="lg" variant="outline" asChild>
-              <Link href="/courses">
-                View All Courses <ArrowRight className="ml-2 h-4 w-4" />
+              <Link href="/portfolio">
+                View All Projects <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Partner Companies */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold">
-              Trusted by Leading Organizations
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Partnering with universities, training centers, and companies to
-              deliver world-class education
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8 items-center">
-            {partnerCompanies?.map((partner, index) => (
-              <div key={index} className="group text-center space-y-2">
-                <div className="bg-card rounded-lg p-4 group-hover:shadow-md transition-shadow">
-                  <img
-                    src={partner.logo_url || "/placeholder.svg"}
-                    alt={`${partner.name} logo`}
-                    className="w-full h-12 object-contain grayscale group-hover:grayscale-0 transition-all"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <div className="font-medium text-sm">{partner.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {partner.partnership_type || "Partner"}
-                  </div>
-                </div>
-              </div>
-            )) || []}
-          </div>
-
-          <div className="text-center mt-12">
-            <Button variant="outline" asChild>
-              <Link href="/companies">View All Partners</Link>
             </Button>
           </div>
         </div>
@@ -218,22 +145,22 @@ export default async function HomePage() {
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-2xl mx-auto space-y-6">
             <h2 className="text-3xl lg:text-4xl font-bold text-balance">
-              Ready to Start Your Learning Journey?
+              Want to Collaborate or Learn Together?
             </h2>
             <p className="text-lg opacity-90 text-pretty">
-              Join thousands of students who have transformed their careers. Get
-              started with our comprehensive courses today.
+              Reach out to me to discuss projects, mentorship, or personalized
+              learning sessions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary">
-                <Link href="/courses">Browse Courses</Link>
+                <Link href="/contact">Contact Me</Link>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary bg-transparent"
               >
-                Contact Us
+                <Link href="/portfolio">View Portfolio</Link>
               </Button>
             </div>
           </div>

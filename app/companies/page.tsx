@@ -7,39 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, GraduationCap, Users, Heart } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-
-const companyCategories = [
-  {
-    title: "Universities",
-    icon: GraduationCap,
-    description:
-      "Academic institutions where I've taught courses and developed curriculum",
-    partnership_type: "university",
-  },
-  {
-    title: "Training Centers",
-    icon: Users,
-    description:
-      "Professional training organizations focused on skill development and career advancement",
-    partnership_type: "training",
-  },
-  {
-    title: "Companies",
-    icon: Building2,
-    description:
-      "Technology companies where I've provided consulting and training services",
-    partnership_type: "company",
-  },
-  {
-    title: "Charities",
-    icon: Heart,
-    description:
-      "Non-profit organizations focused on education and community development",
-    partnership_type: "charity",
-  },
-];
 
 export default async function CompaniesPage() {
   const supabase = await createClient();
@@ -48,14 +17,20 @@ export default async function CompaniesPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  // Group companies by partnership type
-  const groupedCompanies = companyCategories.map((category) => ({
-    ...category,
-    companies:
-      companies?.filter(
-        (company) => company.partnership_type === category.partnership_type
-      ) || [],
-  }));
+  // Group dynamically by partnership_type
+  const groupedCompanies = companies
+    ? Object.entries(
+        companies.reduce((acc, company) => {
+          if (!acc[company.partnership_type])
+            acc[company.partnership_type] = [];
+          acc[company.partnership_type].push(company);
+          return acc;
+        }, {} as Record<string, typeof companies>)
+      ).map(([type, comps]) => ({
+        partnership_type: type,
+        companies: comps,
+      }))
+    : [];
 
   return (
     <div className="flex flex-col">
@@ -67,107 +42,98 @@ export default async function CompaniesPage() {
               Partner Organizations
             </h1>
             <p className="text-lg text-muted-foreground text-pretty">
-              Collaborating with leading universities, training centers,
-              companies, and charities to deliver world-class technology
-              education and training programs.
+              Collaborating with universities, training centers, companies, and
+              more to deliver world-class technology education.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Company Categories */}
-      {groupedCompanies.map((category, categoryIndex) => {
-        const Icon = category.icon;
-        return (
-          <section
-            key={categoryIndex}
-            className={`py-20 ${categoryIndex % 2 === 1 ? "bg-muted/50" : ""}`}
-          >
-            <div className="container mx-auto px-4">
-              <div className="text-center space-y-4 mb-12">
-                <div className="flex items-center justify-center space-x-3">
-                  <Icon className="h-8 w-8 text-primary" />
-                  <h2 className="text-3xl lg:text-4xl font-bold">
-                    {category.title}
-                  </h2>
-                </div>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                  {category.description}
-                </p>
+      {/* Dynamic Partnership Sections */}
+      {groupedCompanies.map((category, idx) => (
+        <section
+          key={category.partnership_type}
+          className={`py-20 ${idx % 2 === 1 ? "bg-muted/50" : ""}`}
+        >
+          <div className="container mx-auto px-4">
+            <div className="text-center space-y-4 mb-12">
+              <div className="flex items-center justify-center space-x-3">
+                <Building2 className="h-8 w-8 text-primary" />
+                <h2 className="text-3xl lg:text-4xl font-bold capitalize">
+                  {category.partnership_type}
+                </h2>
               </div>
-
-              {category.companies.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {category.companies.map((company, companyIndex) => (
-                    <Card
-                      key={companyIndex}
-                      className="hover:shadow-lg transition-shadow"
-                    >
-                      <CardHeader>
-                        <div className="flex items-start space-x-4">
-                          <div className="bg-white rounded-lg p-3 shadow-sm">
-                            <img
-                              src={company.logo_url || "/placeholder.svg"}
-                              alt={`${company.name} logo`}
-                              className="w-16 h-16 object-contain"
-                            />
-                          </div>
-                          <div className="flex-1 space-y-2">
-                            <CardTitle className="text-xl">
-                              {company.name}
-                            </CardTitle>
-                            <CardDescription className="font-medium text-primary">
-                              {company.description}
-                            </CardDescription>
-                            <Badge variant="outline">
-                              {new Date(company.created_at).getFullYear()} -
-                              Present
-                            </Badge>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <p className="text-muted-foreground">
-                          {company.description}
-                        </p>
-
-                        <div className="space-y-2">
-                          <h4 className="font-semibold text-sm">
-                            Partnership Type:
-                          </h4>
-                          <p className="text-sm text-primary font-medium capitalize">
-                            {company.partnership_type || "Partner"}
-                          </p>
-                        </div>
-
-                        {company.website_url && (
-                          <div className="space-y-2">
-                            <h4 className="font-semibold text-sm">Website:</h4>
-                            <a
-                              href={company.website_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-primary hover:underline"
-                            >
-                              {company.website_url}
-                            </a>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground">
-                    No {category.title.toLowerCase()} partnerships yet.
-                  </p>
-                </div>
-              )}
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Organizations with a{" "}
+                <span className="font-semibold">
+                  {category.partnership_type}
+                </span>{" "}
+                partnership
+              </p>
             </div>
-          </section>
-        );
-      })}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {category.companies.map((company) => (
+                <Card
+                  key={company.id}
+                  className="hover:shadow-lg transition-shadow"
+                >
+                  <CardHeader>
+                    <div className="flex items-start space-x-4">
+                      <div className="bg-white rounded-lg p-3 shadow-sm">
+                        <img
+                          src={company.logo_url || "/placeholder.svg"}
+                          alt={`${company.name} logo`}
+                          className="w-16 h-16 object-contain"
+                        />
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <CardTitle className="text-xl">
+                          {company.name}
+                        </CardTitle>
+                        <CardDescription className="font-medium text-primary">
+                          {company.description}
+                        </CardDescription>
+                        <Badge variant="outline">
+                          {new Date(company.created_at).getFullYear()} - Present
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-muted-foreground">
+                      {company.description}
+                    </p>
+
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-sm">
+                        Partnership Type:
+                      </h4>
+                      <p className="text-sm text-primary font-medium capitalize">
+                        {company.partnership_type}
+                      </p>
+                    </div>
+
+                    {company.website_url && (
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-sm">Website:</h4>
+                        <a
+                          href={company.website_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-primary hover:underline"
+                        >
+                          {company.website_url}
+                        </a>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))}
 
       {/* Partnership Stats */}
       <section className="py-20 bg-primary text-primary-foreground">
