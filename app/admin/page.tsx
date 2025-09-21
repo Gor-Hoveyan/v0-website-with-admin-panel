@@ -1,6 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   BookOpen,
   Video,
@@ -13,7 +19,8 @@ import {
   Plus,
   Edit,
   Eye,
-} from "lucide-react"
+} from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 const adminSections = [
   {
@@ -44,7 +51,7 @@ const adminSections = [
     title: "Talks & Events",
     description: "Manage speaking engagements and events",
     icon: Calendar,
-    href: "/admin/talks-events",
+    href: "/admin/talks",
     stats: { total: 15, upcoming: 2, past: 13 },
     color: "text-orange-600",
   },
@@ -64,16 +71,106 @@ const adminSections = [
     stats: { total: 15, active: 15, inactive: 0 },
     color: "text-red-600",
   },
-]
+];
 
 const quickStats = [
   { label: "Total Students", value: "5,247", change: "+12%", icon: Users },
-  { label: "Course Enrollments", value: "8,450", change: "+8%", icon: BookOpen },
+  {
+    label: "Course Enrollments",
+    value: "8,450",
+    change: "+8%",
+    icon: BookOpen,
+  },
   { label: "Blog Views", value: "45.2K", change: "+15%", icon: Eye },
   { label: "Event Attendees", value: "2,100", change: "+25%", icon: Calendar },
-]
+];
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const supabase = await createClient();
+
+  // Fetch stats from the new stats API
+  let realStats;
+  try {
+    const statsResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/stats`
+    );
+    realStats = await statsResponse.json();
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    // Fallback to individual queries if stats API fails
+    const [
+      { data: courses },
+      { data: videoCourses },
+      { data: blogPosts },
+      { data: talksEvents },
+      { data: projects },
+      { data: companies },
+    ] = await Promise.all([
+      supabase.from("courses").select("id, is_featured"),
+      supabase.from("video_courses").select("id, is_featured"),
+      supabase.from("blog_posts").select("id, published"),
+      supabase.from("talks_events").select("id, event_date"),
+      supabase.from("projects").select("id"),
+      supabase.from("companies").select("id"),
+    ]);
+
+    realStats = {
+      courses: {
+        total: courses?.length || 0,
+        published: courses?.filter((c) => c.is_featured).length || 0,
+        draft:
+          (courses?.length || 0) -
+          (courses?.filter((c) => c.is_featured).length || 0),
+      },
+      videoCourses: {
+        total: videoCourses?.length || 0,
+        published: videoCourses?.filter((vc) => vc.is_featured).length || 0,
+        draft:
+          (videoCourses?.length || 0) -
+          (videoCourses?.filter((vc) => vc.is_featured).length || 0),
+      },
+      blogPosts: {
+        total: blogPosts?.length || 0,
+        published: blogPosts?.filter((bp) => bp.published).length || 0,
+        draft:
+          (blogPosts?.length || 0) -
+          (blogPosts?.filter((bp) => bp.published).length || 0),
+      },
+      talksEvents: {
+        total: talksEvents?.length || 0,
+        upcoming:
+          talksEvents?.filter(
+            (te) => te.event_date && new Date(te.event_date) > new Date()
+          ).length || 0,
+        past:
+          (talksEvents?.length || 0) -
+          (talksEvents?.filter(
+            (te) => te.event_date && new Date(te.event_date) > new Date()
+          ).length || 0),
+      },
+      projects: {
+        total: projects?.length || 0,
+        active: projects?.length || 0,
+        archived: 0,
+      },
+      companies: {
+        total: companies?.length || 0,
+        active: companies?.length || 0,
+        inactive: 0,
+      },
+    };
+  }
+
+  // Update admin sections with real stats
+  const updatedAdminSections = adminSections.map((section) => ({
+    ...section,
+    stats:
+      realStats[
+        section.title
+          .toLowerCase()
+          .replace(/\s+/g, "") as keyof typeof realStats
+      ] || section.stats,
+  }));
   return (
     <div className="flex flex-col min-h-screen bg-muted/50">
       <div className="border-b bg-background">
@@ -81,7 +178,9 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Manage your educational platform content</p>
+              <p className="text-muted-foreground">
+                Manage your educational platform content
+              </p>
             </div>
             <Button asChild>
               <Link href="/">
@@ -97,19 +196,23 @@ export default function AdminDashboard() {
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {quickStats.map((stat, index) => {
-            const Icon = stat.icon
+            const Icon = stat.icon;
             return (
               <Card key={index}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">{stat.label}</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {stat.label}
+                  </CardTitle>
                   <Icon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-green-600 font-medium">{stat.change} from last month</p>
+                  <p className="text-xs text-green-600 font-medium">
+                    {stat.change} from last month
+                  </p>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
 
@@ -124,17 +227,21 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {adminSections.map((section, index) => {
-              const Icon = section.icon
+            {updatedAdminSections.map((section, index) => {
+              const Icon = section.icon;
               return (
                 <Card key={index} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-lg bg-muted ${section.color}`}>
+                      <div
+                        className={`p-2 rounded-lg bg-muted ${section.color}`}
+                      >
                         <Icon className="h-6 w-6" />
                       </div>
                       <div>
-                        <CardTitle className="text-lg">{section.title}</CardTitle>
+                        <CardTitle className="text-lg">
+                          {section.title}
+                        </CardTitle>
                         <CardDescription>{section.description}</CardDescription>
                       </div>
                     </div>
@@ -160,7 +267,7 @@ export default function AdminDashboard() {
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </div>
@@ -169,7 +276,9 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest updates across your platform</CardDescription>
+            <CardDescription>
+              Latest updates across your platform
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -179,9 +288,13 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex-1">
                   <p className="font-medium">New course enrollment</p>
-                  <p className="text-sm text-muted-foreground">25 students enrolled in "Deep Learning" course</p>
+                  <p className="text-sm text-muted-foreground">
+                    25 students enrolled in "Deep Learning" course
+                  </p>
                 </div>
-                <span className="text-sm text-muted-foreground">2 hours ago</span>
+                <span className="text-sm text-muted-foreground">
+                  2 hours ago
+                </span>
               </div>
 
               <div className="flex items-center space-x-4 p-3 rounded-lg bg-muted/50">
@@ -190,7 +303,9 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex-1">
                   <p className="font-medium">Blog post published</p>
-                  <p className="text-sm text-muted-foreground">"The Future of AI in Education" is now live</p>
+                  <p className="text-sm text-muted-foreground">
+                    "The Future of AI in Education" is now live
+                  </p>
                 </div>
                 <span className="text-sm text-muted-foreground">1 day ago</span>
               </div>
@@ -201,14 +316,18 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex-1">
                   <p className="font-medium">Event registration opened</p>
-                  <p className="text-sm text-muted-foreground">Tech Education Summit 2024 registration is now open</p>
+                  <p className="text-sm text-muted-foreground">
+                    Tech Education Summit 2024 registration is now open
+                  </p>
                 </div>
-                <span className="text-sm text-muted-foreground">3 days ago</span>
+                <span className="text-sm text-muted-foreground">
+                  3 days ago
+                </span>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

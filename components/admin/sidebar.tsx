@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   BookOpen,
@@ -14,7 +14,7 @@ import {
   Building2,
   Settings,
   LogOut,
-} from "lucide-react"
+} from "lucide-react";
 
 const sidebarItems = [
   {
@@ -39,7 +39,7 @@ const sidebarItems = [
   },
   {
     title: "Talks & Events",
-    href: "/admin/talks-events",
+    href: "/admin/talks",
     icon: Calendar,
   },
   {
@@ -57,10 +57,10 @@ const sidebarItems = [
     href: "/admin/settings",
     icon: Settings,
   },
-]
+];
 
 export function AdminSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <div className="flex h-full w-64 flex-col bg-background border-r">
@@ -73,8 +73,8 @@ export function AdminSidebar() {
 
       <nav className="flex-1 space-y-1 p-4">
         {sidebarItems.map((item) => {
-          const Icon = item.icon
-          const isActive = pathname === item.href
+          const Icon = item.icon;
+          const isActive = pathname === item.href;
 
           return (
             <Link
@@ -84,18 +84,22 @@ export function AdminSidebar() {
                 "flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
               <Icon className="h-4 w-4" />
               <span>{item.title}</span>
             </Link>
-          )
+          );
         })}
       </nav>
 
       <div className="border-t p-4">
-        <Button variant="outline" className="w-full justify-start bg-transparent" asChild>
+        <Button
+          variant="outline"
+          className="w-full justify-start bg-transparent"
+          asChild
+        >
           <Link href="/">
             <LogOut className="h-4 w-4 mr-2" />
             Back to Site
@@ -103,5 +107,5 @@ export function AdminSidebar() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

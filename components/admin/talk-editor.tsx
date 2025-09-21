@@ -1,36 +1,36 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import Link from "next/link"
-import { ArrowLeft, Save, Calendar, MapPin } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import Link from "next/link";
+import { ArrowLeft, Save, Calendar, MapPin } from "lucide-react";
 
 interface Talk {
-  id?: string
-  title: string
-  description: string
-  date: string
-  location: string
-  event_name?: string
-  is_featured: boolean
-  image_url?: string
-  slides_url?: string
-  video_url?: string
+  id?: string;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  event_name?: string;
+  is_featured: boolean;
+  image_url?: string;
+  slides_url?: string;
+  video_url?: string;
 }
 
 interface TalkEditorProps {
-  initialTalk?: Talk
+  initialTalk?: Talk;
 }
 
 export function TalkEditor({ initialTalk }: TalkEditorProps) {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [talk, setTalk] = useState<Talk>({
     title: initialTalk?.title || "",
     description: initialTalk?.description || "",
@@ -41,24 +41,31 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
     image_url: initialTalk?.image_url || "",
     slides_url: initialTalk?.slides_url || "",
     video_url: initialTalk?.video_url || "",
-  })
+  });
 
   const handleSave = async () => {
-    if (!talk.title.trim() || !talk.description.trim() || !talk.date || !talk.location.trim()) {
-      alert("Please fill in the title, description, date, and location")
-      return
+    if (
+      !talk.title.trim() ||
+      !talk.description.trim() ||
+      !talk.date ||
+      !talk.location.trim()
+    ) {
+      alert("Please fill in the title, description, date, and location");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       const talkData = {
         ...talk,
         updated_at: new Date().toISOString(),
-      }
+      };
 
-      const url = initialTalk ? `/api/talks/${initialTalk.id}` : "/api/talks"
-      const method = initialTalk ? "PUT" : "POST"
+      const url = initialTalk
+        ? `/api/talks-events/${initialTalk.id}`
+        : "/api/talks-events";
+      const method = initialTalk ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
@@ -66,21 +73,21 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(talkData),
-      })
+      });
 
       if (response.ok) {
-        router.push("/admin/talks")
+        router.push("/admin/talks");
       } else {
-        const error = await response.json()
-        alert(`Failed to save talk: ${error.error}`)
+        const error = await response.json();
+        alert(`Failed to save talk: ${error.error}`);
       }
     } catch (error) {
-      console.error("Error saving talk:", error)
-      alert("Failed to save talk")
+      console.error("Error saving talk:", error);
+      alert("Failed to save talk");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/50">
@@ -96,9 +103,13 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
                 </Link>
               </Button>
               <div>
-                <h1 className="text-3xl font-bold">{initialTalk ? "Edit Talk" : "Create New Talk"}</h1>
+                <h1 className="text-3xl font-bold">
+                  {initialTalk ? "Edit Talk" : "Create New Talk"}
+                </h1>
                 <p className="text-muted-foreground">
-                  {initialTalk ? "Update your talk details" : "Add a new speaking engagement"}
+                  {initialTalk
+                    ? "Update your talk details"
+                    : "Add a new speaking engagement"}
                 </p>
               </div>
             </div>
@@ -123,7 +134,9 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
               <Input
                 id="title"
                 value={talk.title}
-                onChange={(e) => setTalk((prev) => ({ ...prev, title: e.target.value }))}
+                onChange={(e) =>
+                  setTalk((prev) => ({ ...prev, title: e.target.value }))
+                }
                 placeholder="Enter talk title..."
               />
             </div>
@@ -133,7 +146,9 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
               <Textarea
                 id="description"
                 value={talk.description}
-                onChange={(e) => setTalk((prev) => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setTalk((prev) => ({ ...prev, description: e.target.value }))
+                }
                 placeholder="Describe your talk..."
                 rows={4}
               />
@@ -148,7 +163,9 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
                     id="date"
                     type="datetime-local"
                     value={talk.date}
-                    onChange={(e) => setTalk((prev) => ({ ...prev, date: e.target.value }))}
+                    onChange={(e) =>
+                      setTalk((prev) => ({ ...prev, date: e.target.value }))
+                    }
                     className="pl-10"
                   />
                 </div>
@@ -161,7 +178,9 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
                   <Input
                     id="location"
                     value={talk.location}
-                    onChange={(e) => setTalk((prev) => ({ ...prev, location: e.target.value }))}
+                    onChange={(e) =>
+                      setTalk((prev) => ({ ...prev, location: e.target.value }))
+                    }
                     placeholder="e.g., San Francisco, CA"
                     className="pl-10"
                   />
@@ -174,7 +193,9 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
               <Input
                 id="event_name"
                 value={talk.event_name}
-                onChange={(e) => setTalk((prev) => ({ ...prev, event_name: e.target.value }))}
+                onChange={(e) =>
+                  setTalk((prev) => ({ ...prev, event_name: e.target.value }))
+                }
                 placeholder="e.g., TechConf 2024, AI Summit"
               />
             </div>
@@ -184,7 +205,9 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
               <Input
                 id="image_url"
                 value={talk.image_url}
-                onChange={(e) => setTalk((prev) => ({ ...prev, image_url: e.target.value }))}
+                onChange={(e) =>
+                  setTalk((prev) => ({ ...prev, image_url: e.target.value }))
+                }
                 placeholder="https://example.com/event-image.jpg"
               />
             </div>
@@ -195,7 +218,9 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
                 <Input
                   id="slides_url"
                   value={talk.slides_url}
-                  onChange={(e) => setTalk((prev) => ({ ...prev, slides_url: e.target.value }))}
+                  onChange={(e) =>
+                    setTalk((prev) => ({ ...prev, slides_url: e.target.value }))
+                  }
                   placeholder="https://slides.com/presentation"
                 />
               </div>
@@ -205,7 +230,9 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
                 <Input
                   id="video_url"
                   value={talk.video_url}
-                  onChange={(e) => setTalk((prev) => ({ ...prev, video_url: e.target.value }))}
+                  onChange={(e) =>
+                    setTalk((prev) => ({ ...prev, video_url: e.target.value }))
+                  }
                   placeholder="https://youtube.com/watch?v=..."
                 />
               </div>
@@ -215,10 +242,14 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
               <Switch
                 id="is_featured"
                 checked={talk.is_featured}
-                onCheckedChange={(checked) => setTalk((prev) => ({ ...prev, is_featured: checked }))}
+                onCheckedChange={(checked) =>
+                  setTalk((prev) => ({ ...prev, is_featured: checked }))
+                }
               />
               <Label htmlFor="is_featured">Featured Talk</Label>
-              <p className="text-sm text-muted-foreground ml-2">Featured talks appear prominently on the homepage</p>
+              <p className="text-sm text-muted-foreground ml-2">
+                Featured talks appear prominently on the homepage
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -234,7 +265,7 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
                 alt="Event preview"
                 className="w-full max-w-md h-48 object-cover rounded-lg"
                 onError={(e) => {
-                  e.currentTarget.style.display = "none"
+                  e.currentTarget.style.display = "none";
                 }}
               />
             </CardContent>
@@ -242,5 +273,5 @@ export function TalkEditor({ initialTalk }: TalkEditorProps) {
         )}
       </div>
     </div>
-  )
+  );
 }

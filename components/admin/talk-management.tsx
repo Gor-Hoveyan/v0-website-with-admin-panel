@@ -1,80 +1,90 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import Link from "next/link"
-import { Plus, Search, Edit, Trash2, Eye, Calendar, MapPin, Users } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  Calendar,
+  MapPin,
+  Users,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Talk {
-  id: string
-  title: string
-  description: string
-  date: string
-  location: string
-  event_name?: string
-  is_featured: boolean
-  image_url?: string
-  slides_url?: string
-  video_url?: string
-  created_at: string
-  updated_at: string
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  event_name?: string;
+  is_featured: boolean;
+  image_url?: string;
+  slides_url?: string;
+  video_url?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface TalkManagementProps {
-  initialTalks: Talk[]
+  initialTalks: Talk[];
 }
 
 export function TalkManagement({ initialTalks }: TalkManagementProps) {
-  const [talks, setTalks] = useState(initialTalks)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filter, setFilter] = useState("all")
-  const router = useRouter()
+  const [talks, setTalks] = useState(initialTalks);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all");
+  const router = useRouter();
 
   const filteredTalks = talks.filter((talk) => {
     const matchesSearch =
       talk.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       talk.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       talk.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (talk.event_name && talk.event_name.toLowerCase().includes(searchTerm.toLowerCase()))
+      (talk.event_name &&
+        talk.event_name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const now = new Date()
-    const talkDate = new Date(talk.date)
+    const now = new Date();
+    const talkDate = new Date(talk.date);
     const matchesFilter =
       filter === "all" ||
       (filter === "upcoming" && talkDate >= now) ||
       (filter === "past" && talkDate < now) ||
-      (filter === "featured" && talk.is_featured)
+      (filter === "featured" && talk.is_featured);
 
-    return matchesSearch && matchesFilter
-  })
+    return matchesSearch && matchesFilter;
+  });
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this talk?")) return
+    if (!confirm("Are you sure you want to delete this talk?")) return;
 
     try {
-      const response = await fetch(`/api/talks/${id}`, {
+      const response = await fetch(`/api/talks-events/${id}`, {
         method: "DELETE",
-      })
+      });
 
       if (response.ok) {
-        setTalks(talks.filter((talk) => talk.id !== id))
+        setTalks(talks.filter((talk) => talk.id !== id));
       } else {
-        alert("Failed to delete talk")
+        alert("Failed to delete talk");
       }
     } catch (error) {
-      console.error("Error deleting talk:", error)
-      alert("Failed to delete talk")
+      console.error("Error deleting talk:", error);
+      alert("Failed to delete talk");
     }
-  }
+  };
 
-  const now = new Date()
-  const upcomingTalks = talks.filter((talk) => new Date(talk.date) >= now)
-  const pastTalks = talks.filter((talk) => new Date(talk.date) < now)
-  const featuredCount = talks.filter((talk) => talk.is_featured).length
+  const now = new Date();
+  const upcomingTalks = talks.filter((talk) => new Date(talk.date) >= now);
+  const pastTalks = talks.filter((talk) => new Date(talk.date) < now);
+  const featuredCount = talks.filter((talk) => talk.is_featured).length;
 
   return (
     <div className="flex flex-col min-h-screen bg-muted/50">
@@ -84,7 +94,9 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Manage Talks & Events</h1>
-              <p className="text-muted-foreground">Manage your speaking engagements and events</p>
+              <p className="text-muted-foreground">
+                Manage your speaking engagements and events
+              </p>
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" asChild>
@@ -119,7 +131,11 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
                 />
               </div>
               <div className="flex gap-2">
-                <Button variant={filter === "all" ? "default" : "outline"} size="sm" onClick={() => setFilter("all")}>
+                <Button
+                  variant={filter === "all" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilter("all")}
+                >
                   All Talks
                 </Button>
                 <Button
@@ -129,7 +145,11 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
                 >
                   Upcoming
                 </Button>
-                <Button variant={filter === "past" ? "default" : "outline"} size="sm" onClick={() => setFilter("past")}>
+                <Button
+                  variant={filter === "past" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setFilter("past")}
+                >
                   Past
                 </Button>
                 <Button
@@ -157,12 +177,15 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
             </Card>
           ) : (
             filteredTalks.map((talk) => {
-              const talkDate = new Date(talk.date)
-              const isUpcoming = talkDate >= now
-              const isPast = talkDate < now
+              const talkDate = new Date(talk.date);
+              const isUpcoming = talkDate >= now;
+              const isPast = talkDate < now;
 
               return (
-                <Card key={talk.id} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={talk.id}
+                  className="hover:shadow-lg transition-shadow"
+                >
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex space-x-4 flex-1">
@@ -183,13 +206,25 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
 
                         <div className="flex-1 space-y-3">
                           <div className="flex items-center space-x-3">
-                            <h3 className="text-xl font-semibold">{talk.title}</h3>
-                            {talk.is_featured && <Badge className="bg-yellow-100 text-yellow-800">Featured</Badge>}
-                            {isUpcoming && <Badge className="bg-blue-100 text-blue-800">Upcoming</Badge>}
+                            <h3 className="text-xl font-semibold">
+                              {talk.title}
+                            </h3>
+                            {talk.is_featured && (
+                              <Badge className="bg-yellow-100 text-yellow-800">
+                                Featured
+                              </Badge>
+                            )}
+                            {isUpcoming && (
+                              <Badge className="bg-blue-100 text-blue-800">
+                                Upcoming
+                              </Badge>
+                            )}
                             {isPast && <Badge variant="outline">Past</Badge>}
                           </div>
 
-                          <p className="text-muted-foreground">{talk.description}</p>
+                          <p className="text-muted-foreground">
+                            {talk.description}
+                          </p>
 
                           <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                             <div className="flex items-center space-x-1">
@@ -200,7 +235,9 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
                               <MapPin className="h-4 w-4" />
                               <span>{talk.location}</span>
                             </div>
-                            {talk.event_name && <span>Event: {talk.event_name}</span>}
+                            {talk.event_name && (
+                              <span>Event: {talk.event_name}</span>
+                            )}
                           </div>
 
                           <div className="flex items-center space-x-4 text-sm">
@@ -239,14 +276,18 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
                             <Edit className="h-4 w-4" />
                           </Link>
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleDelete(talk.id)}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDelete(talk.id)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })
           )}
         </div>
@@ -255,7 +296,9 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Talks</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Talks
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{talks.length}</div>
@@ -264,7 +307,9 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Upcoming</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Upcoming
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{upcomingTalks.length}</div>
@@ -273,7 +318,9 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Past Events</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Past Events
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{pastTalks.length}</div>
@@ -282,7 +329,9 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Featured</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Featured
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{featuredCount}</div>
@@ -291,5 +340,5 @@ export function TalkManagement({ initialTalks }: TalkManagementProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
