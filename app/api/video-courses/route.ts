@@ -4,17 +4,16 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function GET() {
   const supabase = await createClient()
 
-  const { data: posts, error } = await supabase
-    .from("blog_posts")
+  const { data: videoCourses, error } = await supabase
+    .from("video_courses")
     .select("*")
-    .eq("published", true)
     .order("created_at", { ascending: false })
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(posts)
+  return NextResponse.json(videoCourses)
 }
 
 export async function POST(request: NextRequest) {
@@ -31,16 +30,16 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json()
 
-  const postData = {
+  const videoCourseData = {
     ...body,
     updated_at: new Date().toISOString(),
   }
 
-  const { data: post, error } = await supabase.from("blog_posts").insert([postData]).select().single()
+  const { data: videoCourse, error } = await supabase.from("video_courses").insert([videoCourseData]).select().single()
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(post)
+  return NextResponse.json(videoCourse)
 }

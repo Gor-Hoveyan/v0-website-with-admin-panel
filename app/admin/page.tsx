@@ -76,9 +76,8 @@ const quickStats = [
 export default function AdminDashboard() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/50">
-      {/* Header */}
       <div className="border-b bg-background">
-        <div className="container mx-auto px-4 py-6">
+        <div className="px-6 py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
@@ -94,7 +93,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 space-y-8">
+      <div className="px-6 py-8 space-y-8">
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {quickStats.map((stat, index) => {
